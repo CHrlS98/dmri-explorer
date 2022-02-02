@@ -23,7 +23,7 @@ public:
     ~Scene();
 
     /// Add an SHField instance to the scene.
-    void AddSHField();
+    void AddSHField(const std::string& imagePath, int sphereResolution);
 
     /// Render the scene.
     void Render();

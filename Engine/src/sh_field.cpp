@@ -11,8 +11,12 @@ const int NB_THREADS_FOR_SPHERES = 2;
 namespace Slicer
 {
 SHField::SHField(const std::shared_ptr<ApplicationState>& state,
-                 std::shared_ptr<CoordinateSystem> parent)
+                 std::shared_ptr<CoordinateSystem> parent,
+                 const std::string& imagePath,
+                 int sphereResolution)
 :Model(state)
+,mSHImage(imagePath)
+,mSphereResolution(sphereResolution)
 ,mIndices()
 ,mSphHarmCoeffs()
 ,mNbSpheresX(0)
@@ -45,6 +49,16 @@ SHField::~SHField()
 
 void SHField::updateApplicationStateAtInit()
 {
+    mState->FODFImage.Update(mSHImage);
+
+    mState->Sphere.Resolution.Update(mSphereResolution);
+    mState->Sphere.IsNormalized.Update(false);
+    mState->Sphere.Scaling.Update(0.5f);
+    mState->Sphere.SH0Threshold.Update(0.0f);
+    mState->Sphere.FadeIfHidden.Update(true);
+
+    mState->VoxelGrid.VolumeShape.Update(mState->FODFImage.Get().dims());
+    mState->VoxelGrid.SliceIndices.Update(mState->VoxelGrid.VolumeShape.Get() / 2);
 }
 
 void SHField::registerStateCallbacks()

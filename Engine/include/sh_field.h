@@ -71,7 +71,9 @@ public:
     /// \param[in] state Reference to the ApplicationState.
     /// \param[in] parent Reference to the parent CoordinateSystem.
     SHField(const std::shared_ptr<ApplicationState>& state,
-            std::shared_ptr<CoordinateSystem> parent);
+            std::shared_ptr<CoordinateSystem> parent,
+            const std::string& imagePath,
+            int sphereResolution);
 
     /// Destructor.
     ~SHField();
@@ -206,6 +208,10 @@ private:
 
     /// Maximum number of spheres rendered in Z-plane.
     uint mNbSpheresZ;
+
+    int mSphereResolution;
+
+    NiftiImageWrapper mSHImage;
 
     /// Indicates what slices need to be computed.
     glm::bvec3 mIsSliceDirty;

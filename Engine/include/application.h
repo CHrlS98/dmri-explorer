@@ -39,7 +39,7 @@ private:
 
     /// Initialize the ApplicationState object.
     /// \param[in] parser The command line arguments.
-    void initApplicationState(const ArgumentParser& parser);
+    void initApplicationState();
 
     /// Set the window icon.
     void setWindowIcon();

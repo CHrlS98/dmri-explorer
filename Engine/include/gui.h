@@ -46,6 +46,8 @@ private:
     /// Draw ImGUI demo window.
     void drawDemoWindow();
 
+    void drawFileBrowserWindow();
+
     /// Pointer to GLFW window.
     GLFWwindow* mWindow;
 
@@ -63,5 +65,7 @@ private:
 
     /// True to show preferences window.
     bool mShowPreferences;
+
+    bool mShowFileBrowser;
 };
 } // namespace Slicer

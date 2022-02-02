@@ -179,5 +179,7 @@ public:
 
     /// Parameter containing the fODF image object.
     ApplicationParameter<NiftiImageWrapper> FODFImage;
+
+    ApplicationParameter<std::string> LastFilename;
 };
 } // namespace Slicer

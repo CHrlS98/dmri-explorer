@@ -22,6 +22,7 @@ UIManager::UIManager(GLFWwindow* window, const std::string& glslVersion,
 ,mIO(nullptr)
 ,mShowDemoWindow(false)
 ,mShowSlicers(false)
+,mShowFileBrowser(false)
 ,mState(state)
 {
     // Initialize imgui
@@ -47,6 +48,7 @@ void UIManager::DrawInterface()
     drawDemoWindow();
     drawSlicersWindow();
     drawPreferencesWindow();
+    drawFileBrowserWindow();
 
     // Rendering
     ImGui::Render();
@@ -71,7 +73,8 @@ void UIManager::drawMainMenuBar()
     ImGui::BeginMainMenuBar();
     if(ImGui::BeginMenu("Options"))
     {
-        ImGui::MenuItem("Show slicers window", NULL, &mShowSlicers);
+        ImGui::MenuItem("Load SH image", NULL, &mShowFileBrowser, !mState->FODFImage.IsInit());
+        ImGui::MenuItem("Show slicers window", NULL, &mShowSlicers, mState->FODFImage.IsInit());
         ImGui::MenuItem("Preferences", NULL, &mShowPreferences);
         ImGui::Separator();
         ImGui::MenuItem("Show demo window", NULL, &mShowDemoWindow);
@@ -107,6 +110,51 @@ void UIManager::drawPreferencesWindow()
     if(ImGui::InputFloat("Zoom speed", &zoomSpeed, 0.001f, 0.5f))
     {
         mState->Window.ZoomSpeed.Update(zoomSpeed);
+    }
+    ImGui::End();
+}
+
+void UIManager::drawFileBrowserWindow()
+{
+    if(!mShowFileBrowser)
+        return;
+
+    ImGui::SetNextWindowPos(ImVec2(5.f, 25.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(406.f, 108.f), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowCollapsed(false, ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("File browser", &mShowFileBrowser);
+
+    static char imagePath[100] = "";
+    ImGui::InputText("Filename", imagePath, 100);
+
+    static int delay = 0;
+    static bool isLoading = false;
+    if(ImGui::Button("ENTER"))
+    {
+        delay = 1500; // hack to display text for more than one frame.
+        if(!mState->FODFImage.IsInit())
+        {
+            isLoading = true;
+            mState->LastFilename.Update(imagePath);
+        }
+        else
+        {
+            isLoading = false;
+        }
+    }
+
+    if(delay > 0)
+    {
+        if(isLoading)
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Loading SH image.");
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "SH image is already loaded!");
+        }
+        --delay;
     }
     ImGui::End();
 }

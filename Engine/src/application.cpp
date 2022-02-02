@@ -27,8 +27,12 @@ Application::Application(const ArgumentParser& parser)
 ,mScene(nullptr)
 ,mCursorPos(-1, -1)
 {
-    initApplicationState(parser);
+    initApplicationState();
     initialize();
+    if(!parser.GetImagePath().empty())
+    {
+        mState->LastFilename.Update(parser.GetImagePath());
+    }
 }
 
 Application::~Application()
@@ -93,9 +97,6 @@ void Application::initialize()
 
     // Render frame without the model
     renderFrame();
-
-    // Add SH field once the UI is drawn
-    mScene->AddSHField();
 }
 
 void Application::setWindowIcon()
@@ -117,19 +118,8 @@ void Application::setWindowIcon()
     glfwSetWindowIcon(mWindow, nbImages, glfwImages);
 }
 
-void Application::initApplicationState(const ArgumentParser& parser)
+void Application::initApplicationState()
 {
-    mState->FODFImage.Update(NiftiImageWrapper(parser.GetImagePath()));
-
-    mState->Sphere.Resolution.Update(parser.GetSphereResolution());
-    mState->Sphere.IsNormalized.Update(false);
-    mState->Sphere.Scaling.Update(0.5f);
-    mState->Sphere.SH0Threshold.Update(0.0f);
-    mState->Sphere.FadeIfHidden.Update(true);
-
-    mState->VoxelGrid.VolumeShape.Update(mState->FODFImage.Get().dims());
-    mState->VoxelGrid.SliceIndices.Update(mState->VoxelGrid.VolumeShape.Get() / 2);
-
     mState->Window.Height.Update(WIN_HEIGHT);
     mState->Window.Width.Update(WIN_WIDTH);
     mState->Window.TranslationSpeed.Update(TRANSLATION_SPEED);

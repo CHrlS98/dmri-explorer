@@ -10,16 +10,23 @@ Scene::Scene(const std::shared_ptr<ApplicationState>& state)
 :mState(state)
 ,mCoordinateSystem(new CoordinateSystem())
 {
+    mState->LastFilename.RegisterCallback(
+        [this](std::string prev, std::string next)
+        {
+            if(!next.empty() && next != prev)
+                this->AddSHField(next, 4);
+        });
 }
 
 Scene::~Scene()
 {
 }
 
-void Scene::AddSHField()
+void Scene::AddSHField(const std::string& imagePath, int sphereResolution)
 {
     // create a SH Field model
-    mModels.push_back(std::shared_ptr<SHField>(new SHField(mState, mCoordinateSystem)));
+    mModels.push_back(std::shared_ptr<SHField>(new SHField(mState, mCoordinateSystem,
+                                                           imagePath, sphereResolution)));
 }
 
 void Scene::Render()
