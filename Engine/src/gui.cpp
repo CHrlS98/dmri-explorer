@@ -73,8 +73,9 @@ void UIManager::drawMainMenuBar()
     ImGui::BeginMainMenuBar();
     if(ImGui::BeginMenu("Options"))
     {
-        ImGui::MenuItem("Load SH image", NULL, &mShowFileBrowser, !mState->FODFImage.IsInit());
-        ImGui::MenuItem("Show slicers window", NULL, &mShowSlicers, mState->FODFImage.IsInit());
+        const bool isImageLoaded = mState->SHImage.ImagePath.IsInit();
+        ImGui::MenuItem("Load SH image", NULL, &mShowFileBrowser, !isImageLoaded);
+        ImGui::MenuItem("Show slicers window", NULL, &mShowSlicers, isImageLoaded);
         ImGui::MenuItem("Preferences", NULL, &mShowPreferences);
         ImGui::Separator();
         ImGui::MenuItem("Show demo window", NULL, &mShowDemoWindow);
@@ -128,33 +129,12 @@ void UIManager::drawFileBrowserWindow()
     static char imagePath[100] = "";
     ImGui::InputText("Filename", imagePath, 100);
 
-    static int delay = 0;
-    static bool isLoading = false;
     if(ImGui::Button("ENTER"))
     {
-        delay = 1500; // hack to display text for more than one frame.
-        if(!mState->FODFImage.IsInit())
+        if(!mState->SHImage.ImagePath.IsInit())
         {
-            isLoading = true;
-            mState->LastFilename.Update(imagePath);
+            mState->SHImage.ImagePath.Update(imagePath);
         }
-        else
-        {
-            isLoading = false;
-        }
-    }
-
-    if(delay > 0)
-    {
-        if(isLoading)
-        {
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Loading SH image.");
-        }
-        else
-        {
-            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "SH image is already loaded!");
-        }
-        --delay;
     }
     ImGui::End();
 }
@@ -233,10 +213,10 @@ void UIManager::drawSlicersWindow()
     }
 
     ImGui::Separator();
-    auto& scalingParam = mState->Sphere.Scaling;
-    auto& thresholdParam = mState->Sphere.SH0Threshold;
-    auto& normalizedParam = mState->Sphere.IsNormalized;
-    auto& fadeHiddenParam = mState->Sphere.FadeIfHidden;
+    auto& scalingParam = mState->SHImage.Scaling;
+    auto& thresholdParam = mState->SHImage.SH0Threshold;
+    auto& normalizedParam = mState->SHImage.IsNormalized;
+    auto& fadeHiddenParam = mState->SHImage.FadeIfHidden;
     if (!scalingParam.IsInit() || !thresholdParam.IsInit() ||
         !normalizedParam.IsInit() || !fadeHiddenParam.IsInit())
     {

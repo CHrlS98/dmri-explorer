@@ -6,6 +6,10 @@ namespace
 {
 const int NB_THREADS_FOR_SH = 4;
 const int NB_THREADS_FOR_SPHERES = 2;
+const bool DEFAULT_NORMALIZED = false;
+const bool DEFAULT_FADE_IF_HIDDEN = false;
+const float DEFAULT_SCALING = 0.5f;
+const float DEFAULT_SH0_THRESHOLD = 0.0f;
 }
 
 namespace Slicer
@@ -15,7 +19,7 @@ SHField::SHField(const std::shared_ptr<ApplicationState>& state,
                  const std::string& imagePath,
                  int sphereResolution)
 :Model(state)
-,mSHImage(imagePath)
+,mSHImage()
 ,mSphereResolution(sphereResolution)
 ,mIndices()
 ,mSphHarmCoeffs()
@@ -36,11 +40,15 @@ SHField::SHField(const std::shared_ptr<ApplicationState>& state,
 ,mSphere(nullptr)
 {
     resetCS(std::shared_ptr<CoordinateSystem>(new CoordinateSystem(glm::mat4(1.0f), parent)));
-    initializeModel();
-    initializeMembers();
-    initializeGPUData();
 
-    scaleSpheres();
+    if(mSHImage.TryLoadImage(imagePath))
+    {
+        initializeModel();
+        initializeMembers();
+        initializeGPUData();
+
+        scaleSpheres();
+    }
 }
 
 SHField::~SHField()
@@ -49,15 +57,13 @@ SHField::~SHField()
 
 void SHField::updateApplicationStateAtInit()
 {
-    mState->FODFImage.Update(mSHImage);
+    mState->SHImage.Resolution.Update(mSphereResolution);
+    mState->SHImage.IsNormalized.Update(DEFAULT_NORMALIZED);
+    mState->SHImage.Scaling.Update(DEFAULT_SCALING);
+    mState->SHImage.SH0Threshold.Update(DEFAULT_SH0_THRESHOLD);
+    mState->SHImage.FadeIfHidden.Update(DEFAULT_FADE_IF_HIDDEN);
 
-    mState->Sphere.Resolution.Update(mSphereResolution);
-    mState->Sphere.IsNormalized.Update(false);
-    mState->Sphere.Scaling.Update(0.5f);
-    mState->Sphere.SH0Threshold.Update(0.0f);
-    mState->Sphere.FadeIfHidden.Update(true);
-
-    mState->VoxelGrid.VolumeShape.Update(mState->FODFImage.Get().dims());
+    mState->VoxelGrid.VolumeShape.Update(mSHImage.dims());
     mState->VoxelGrid.SliceIndices.Update(mState->VoxelGrid.VolumeShape.Get() / 2);
 }
 
@@ -69,25 +75,25 @@ void SHField::registerStateCallbacks()
             this->setSliceIndex(p, n);
         }
     );
-    mState->Sphere.IsNormalized.RegisterCallback(
+    mState->SHImage.IsNormalized.RegisterCallback(
         [this](bool p, bool n)
         {
             this->setNormalized(p, n);
         }
     );
-    mState->Sphere.SH0Threshold.RegisterCallback(
+    mState->SHImage.SH0Threshold.RegisterCallback(
         [this](float p, float n)
         {
             this->setSH0Threshold(p, n);
         }
     );
-    mState->Sphere.Scaling.RegisterCallback(
+    mState->SHImage.Scaling.RegisterCallback(
         [this](float p, float n)
         {
             this->setSphereScaling(p, n);
         }
     );
-    mState->Sphere.FadeIfHidden.RegisterCallback(
+    mState->SHImage.FadeIfHidden.RegisterCallback(
         [this](bool p, bool n)
         {
             this->setFadeIfHidden(p, n);
@@ -114,11 +120,11 @@ void SHField::initializeMembers()
     mComputeShader = GPU::ShaderProgram(csPath, GL_COMPUTE_SHADER);
 
     // Initialize a sphere for SH to SF projection
-    const auto& image = mState->FODFImage.Get();
+    const auto& image = mSHImage;
     mNbSpheresX = image.dims().y * image.dims().z;
     mNbSpheresY = image.dims().x * image.dims().z;
     mNbSpheresZ = image.dims().x * image.dims().y;
-    mSphere.reset(new Primitive::Sphere(mState->Sphere.Resolution.Get(),
+    mSphere.reset(new Primitive::Sphere(mState->SHImage.Resolution.Get(),
                                         image.dims().w));
     const auto numIndices = mSphere->GetIndices().size();
 
@@ -166,7 +172,7 @@ void SHField::dispatchSubsetCommands(void(SHField::*fn)(size_t, size_t), size_t 
 
 void SHField::copySubsetSHCoefficientsFromImage(size_t firstIndex, size_t lastIndex)
 {
-    const auto& image = mState->FODFImage.Get();
+    const auto& image = mSHImage;
     const unsigned int nCoeffs = image.dims().w;
     for(uint flatIndex = firstIndex; flatIndex < lastIndex; ++flatIndex)
     {
@@ -219,12 +225,12 @@ void SHField::initializeGPUData()
     SphereData sphereData;
     sphereData.NumVertices = mSphere->GetPoints().size();
     sphereData.NumIndices = mSphere->GetIndices().size();
-    sphereData.IsNormalized = mState->Sphere.IsNormalized.Get();
+    sphereData.IsNormalized = mState->SHImage.IsNormalized.Get();
     sphereData.MaxOrder = mSphere->GetMaxSHOrder();
-    sphereData.SH0threshold = mState->Sphere.SH0Threshold.Get();
-    sphereData.Scaling = mState->Sphere.Scaling.Get();
-    sphereData.NbCoeffs = mState->FODFImage.Get().dims().w;
-    sphereData.FadeIfHidden = mState->Sphere.FadeIfHidden.Get();
+    sphereData.SH0threshold = mState->SHImage.SH0Threshold.Get();
+    sphereData.Scaling = mState->SHImage.Scaling.Get();
+    sphereData.NbCoeffs = mSHImage.dims().w;
+    sphereData.FadeIfHidden = mState->SHImage.FadeIfHidden.Get();
 
     GridData gridData;
     gridData.SliceIndices = glm::ivec4(mState->VoxelGrid.SliceIndices.Get(), 0);

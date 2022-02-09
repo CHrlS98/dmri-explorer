@@ -42,6 +42,8 @@ public:
     /// \param[in] path Path to file.
     NiftiImageWrapper(const std::string& path);
 
+    bool TryLoadImage(const std::string& path);
+
     /// Destructor.
     ~NiftiImageWrapper();
 

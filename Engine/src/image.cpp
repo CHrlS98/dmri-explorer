@@ -23,6 +23,20 @@ NiftiImageWrapper::NiftiImageWrapper(const std::string& path)
 {
 }
 
+bool NiftiImageWrapper::TryLoadImage(const std::string& path)
+{
+    nifti_image* image = nifti_image_read(path.c_str(), true);
+    if(image != nullptr)
+    {
+        mDims = {image->nx, image->ny, image->nz, image->nt};
+        mLength = image->nvox;
+        mNbVox = mDims.x * mDims.y * mDims.z;
+        mImage.reset(image);
+        return true;
+    }
+    return false;
+}
+
 NiftiImageWrapper::~NiftiImageWrapper()
 {
 }

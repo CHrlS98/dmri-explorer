@@ -27,12 +27,8 @@ Application::Application(const ArgumentParser& parser)
 ,mScene(nullptr)
 ,mCursorPos(-1, -1)
 {
-    initApplicationState();
+    initApplicationState(parser);
     initialize();
-    if(!parser.GetImagePath().empty())
-    {
-        mState->LastFilename.Update(parser.GetImagePath());
-    }
 }
 
 Application::~Application()
@@ -97,6 +93,8 @@ void Application::initialize()
 
     // Render frame without the model
     renderFrame();
+
+    mScene->AddSHField();
 }
 
 void Application::setWindowIcon()
@@ -118,13 +116,19 @@ void Application::setWindowIcon()
     glfwSetWindowIcon(mWindow, nbImages, glfwImages);
 }
 
-void Application::initApplicationState()
+void Application::initApplicationState(const ArgumentParser& parser)
 {
     mState->Window.Height.Update(WIN_HEIGHT);
     mState->Window.Width.Update(WIN_WIDTH);
     mState->Window.TranslationSpeed.Update(TRANSLATION_SPEED);
     mState->Window.RotationSpeed.Update(ROTATION_SPEED);
     mState->Window.ZoomSpeed.Update(ZOOM_SPEED);
+
+    mState->SHImage.Resolution.Update(parser.GetSphereResolution());
+    if(!parser.GetImagePath().empty())
+    {
+        mState->SHImage.ImagePath.Update(parser.GetImagePath());
+    }
 }
 
 void Application::renderFrame()

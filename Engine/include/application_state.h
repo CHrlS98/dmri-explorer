@@ -106,15 +106,19 @@ struct Grid
 };
 
 /// Struct containing global parameters for the fODF sphere.
-struct Sphere
+struct SHImage
 {
     /// Default constructor
-    Sphere()
-    :Scaling()
+    SHImage()
+    :ImagePath()
+    ,Scaling()
     ,SH0Threshold()
     ,IsNormalized()
     ,Resolution()
     ,FadeIfHidden(){};
+
+    /// The filename of the FODF image to load.
+    ApplicationParameter<std::string> ImagePath;
 
     /// The scaling factor for the sphere glyphs.
     ApplicationParameter<float> Scaling;
@@ -171,15 +175,10 @@ public:
     /// Parameters pertaining to the voxel grid.
     State::Grid VoxelGrid;
 
-    /// Parameters pertaining to the fODF sphere.
-    State::Sphere Sphere;
+    /// Parameters pertaining to the fODF image.
+    State::SHImage SHImage;
 
     /// Parameters pertaining to the Window state.
     State::Window Window;
-
-    /// Parameter containing the fODF image object.
-    ApplicationParameter<NiftiImageWrapper> FODFImage;
-
-    ApplicationParameter<std::string> LastFilename;
 };
 } // namespace Slicer

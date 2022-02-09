@@ -78,6 +78,8 @@ public:
     /// Destructor.
     ~SHField();
 
+    inline bool IsValidImage() { return mSHImage.getNiftiImage() != nullptr; };
+
 protected:
     /// \see Model::drawSpecific()
     void drawSpecific() override;

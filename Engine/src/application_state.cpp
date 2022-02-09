@@ -4,9 +4,8 @@ namespace Slicer
 {
 ApplicationState::ApplicationState()
 :VoxelGrid()
-,Sphere()
+,SHImage()
 ,Window()
-,FODFImage()
 {
 }
 } // namespace Slicer
