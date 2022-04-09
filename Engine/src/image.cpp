@@ -80,9 +80,13 @@ double NiftiImageWrapper::at(uint i, uint j, uint k, uint l) const
     {
         value = static_cast<double>(((float*)(mImage->data))[flatIndex]);
     }
-     if(dtype() == DataType::uint8)
+    else if(dtype() == DataType::uint8)
     {
-        value = ((uint8_t*)(mImage->data))[flatIndex];
+        value = static_cast<double>(((uint8_t*)(mImage->data))[flatIndex]);
+    }
+    else
+    {
+        throw std::runtime_error("Invalid datatype for image");
     }
     return value;
 }

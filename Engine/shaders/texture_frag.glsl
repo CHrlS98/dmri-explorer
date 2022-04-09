@@ -1,12 +1,18 @@
 #version 460
+uniform sampler3D ourTexture;
 
+in vec4 frag_tex_coord;
 out vec4 shaded_color;
 
-in vec3 frag_tex_coord;
-
-uniform sampler3D ourTexture;
+const float DISCARD_EPS = 0.01f;
 
 void main()
 {
-    shaded_color = texture(ourTexture, frag_tex_coord);
+    const vec4 outColor = texture(ourTexture, frag_tex_coord.xyz);
+    if(length(outColor.xyz) < DISCARD_EPS)
+    {
+        discard;
+    }
+
+    shaded_color = outColor;
 }

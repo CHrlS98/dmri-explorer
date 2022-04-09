@@ -12,12 +12,12 @@ layout (location = 2) in vec3 slice;
 out gl_PerVertex{
     vec4 gl_Position;
 };
-out vec3 frag_tex_coord;
+out vec4 frag_tex_coord;
 
 void main()
 {
     mat4 localMatrix;
-    vec3 direction;
+    vec3 direction = vec3(0.0f);
 
     localMatrix[0][0] = 1.0f;
     localMatrix[1][1] = 1.0f;
@@ -27,21 +27,20 @@ void main()
     localMatrix[3][2] = float(floor(-gridDims.z/2.0f)) + 0.5f;
     localMatrix[3][3] = 1.0f;
 
-    if(slice.x == 1)
+    if(slice.x > 0.9f && slice.x < 1.1f)
     {
-        frag_tex_coord = vec3(sliceIndex.x/float(gridDims.x), texCoord.x, texCoord.y);
-        direction = vec3(sliceIndex.x-floor(gridDims.x/2.0f) - 0.5f, 0.0f, 0.0f);
+        frag_tex_coord = vec4(sliceIndex.x/float(gridDims.x - 1), texCoord.x, texCoord.y, 1.0f);
+        direction = vec3(sliceIndex.x - gridDims.x/2.0f, 0.0f, 0.0f);
     }
-    if(slice.y == 1)
+    else if(slice.y > 0.9f && slice.y < 1.1f)
     {
-        frag_tex_coord = vec3(texCoord.x, sliceIndex.y/float(gridDims.y), texCoord.y);
-        direction = vec3(0.0f,sliceIndex.y-floor(gridDims.y/2.0f) - 0.5f ,0.0f);
-
+        frag_tex_coord = vec4(texCoord.x, sliceIndex.y/float(gridDims.y - 1), texCoord.y, 1.0f);
+        direction = vec3(0.0f,sliceIndex.y - gridDims.y/2.0f,0.0f);
     }
-    if(slice.z == 1)
+    else if(slice.z > 0.9f && slice.z < 1.1f)
     {
-        frag_tex_coord = vec3(texCoord.x, texCoord.y, sliceIndex.z/float(gridDims.z));
-        direction = vec3(0.0f, 0.0f, sliceIndex.z-floor(gridDims.z/2.0f) - 0.5f);
+        frag_tex_coord = vec4(texCoord.x, texCoord.y, sliceIndex.z/float(gridDims.z - 1), 1.0f);
+        direction = vec3(0.0f, 0.0f, sliceIndex.z - gridDims.z/2.0f);
     }
 
     gl_Position = projectionMatrix
