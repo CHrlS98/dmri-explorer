@@ -66,6 +66,7 @@ void Texture::initializeMembers()
             {
                 for(int l = 0; l < nCoeffs; ++l)
                 {
+                    // TODO: Remplacer 255.f par image.max() (A IMPLEMENTER)
                     const auto v = (float)image.at(i, j, k, l)/255.f;
                     mData.push_back(v);
                 }
