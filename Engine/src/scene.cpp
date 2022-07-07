@@ -29,7 +29,15 @@ void Scene::AddTexture()
 
 void Scene::Render()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // TODO: Stencil test for discarding texture
+    // occluding ODF on same plane.
+    //
+    // ** Draw planes one at a time:
+    //    1. FODF x, then texture x
+    //    2. FODF y, then texture y
+    //    3. FODF z, then texture z
+    glStencilMask(0xFF);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     for(auto model : mModels)
     {
         model->Draw();

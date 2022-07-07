@@ -345,6 +345,10 @@ void SHField::setVisibleSlices(State::CameraMode previous, State::CameraMode nex
 
 void SHField::drawSpecific()
 {
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should pass the stencil test
+    glStencilMask(0xFF); // enable writing to the stencil buffer
+
     glBindVertexArray(mVAO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndicesBO);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, mIndirectBO);

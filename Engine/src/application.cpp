@@ -92,6 +92,10 @@ void Application::initialize()
     // OpenGL render parameters
     glEnable(GL_SCISSOR_TEST);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 1, GL_TRUE);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);

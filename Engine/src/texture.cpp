@@ -203,9 +203,15 @@ GLuint Texture::genVBO(const std::vector<T>& data) const
 
 void Texture::drawSpecific()
 {
+    // glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00); // disable writing to the stencil buffer
+    //glDisable(GL_DEPTH_TEST);
+
     glDisable(GL_CULL_FACE);
     glBindVertexArray(mVAO);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(mVertices.size()));
+
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 }
