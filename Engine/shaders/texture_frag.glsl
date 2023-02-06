@@ -11,7 +11,7 @@ uniform sampler3D ourTexture;
 const float DISCARD_EPSILON = 0.01f;
 
 // TODO: Move to SSBO, editable from application.
-const float OPACITY = 0.6f;
+const float OPACITY = 1.0f;
 
 void main()
 {
