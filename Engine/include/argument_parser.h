@@ -13,9 +13,6 @@ public:
     /// \param[in] argv Array of space-separated arguments as char*.
     ArgumentParser(int argc, char** argv);
 
-    /// Print the application usage.
-    void PrintUsage() const;
-
     /// Check that arguments are valid.
     /// \return True if arguments are valid.
     bool OK() const;
